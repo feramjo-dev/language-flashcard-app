@@ -23,14 +23,20 @@ to_learn_words = data.to_dict(orient="records")
 known_words_indices = set()
 current_card = {}
 card_index = 0
+countdown_time = 5
 flip_timer = None
+countdown_timer = None
 
 
 # ---------------------------- FUNCTIONS ------------------------------- #
 def next_card():
-    global card_index, current_card, flip_timer
+    global card_index, current_card, countdown_time, countdown_timer, flip_timer
+
+    # Cancel previous timers if any
     if flip_timer is not None:
         window.after_cancel(flip_timer)
+    if countdown_timer is not None:
+        window.after_cancel(countdown_timer)
 
     while True:
         card_index = random.randint(0, len(to_learn_words) - 1)
@@ -42,13 +48,21 @@ def next_card():
     canvas.itemconfig(card_image, image=card_front_img)
     canvas.itemconfig(card_title, text="French", fill="black")
     canvas.itemconfig(card_word, text=current_card["French"], fill="black")
+    canvas.itemconfig(timer_text, text=f"00:0{countdown_time}")
 
+    # Reset and start countdown
+    countdown_time = 5
+    countdown()
     flip_timer = window.after(FLIP_TIME, flip_card)
 
 def flip_card():
+    global countdown_timer
+    if countdown_timer is not None:
+        window.after_cancel(countdown_timer)
     canvas.itemconfig(card_image, image=card_back_img)
-    canvas.itemconfig(card_title, text="English", fill="white")
-    canvas.itemconfig(card_word, text=current_card["English"], fill="white")
+    canvas.itemconfig(card_title, text="English", fill="black")
+    canvas.itemconfig(card_word, text=current_card["English"], fill="black")
+    canvas.itemconfig(timer_text, text="")
 
 def  known_words():
     known_words_indices.add(card_index)
@@ -56,6 +70,16 @@ def  known_words():
 
 def unknown_words():
     next_card()
+
+def countdown():
+    global countdown_time, countdown_timer
+    if countdown_time > 0:
+        canvas.itemconfig(timer_text, text=f"00:0{countdown_time}" if countdown_time < 10 else f"00:{countdown_time}")
+        countdown_time -= 1
+        countdown_timer = window.after(1000, countdown)
+    else:
+        canvas.itemconfig(timer_text, text="")
+
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -71,6 +95,7 @@ card_image = canvas.create_image(400, 263, image=card_front_img)
 
 card_title = canvas.create_text(400, 150, text="", font=FONT_TITLE)
 card_word = canvas.create_text(400, 263, text="", font=FONT_WORD)
+timer_text = canvas.create_text(600, 50, text="", fill=BACKGROUND_COLOR, font=("Courier", 35, "bold"))
 canvas.grid(row=0, column=0, columnspan=2)
 
 # Buttons

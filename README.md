@@ -6,10 +6,15 @@ Users can mark words as known or unknown, and the app will continue to show only
 
 ## Features
 
-- Randomly displays a French word.
+- Randomly displays a French word using flashcards.
+- Countdown timer before the answer is revealed
 - Automatically flips to show the English meaning after 5 seconds.
 - Buttons to mark if the word is known or not.
 - Keeps track of known words within a session.
+
+## Screenshot
+
+![App UI](screenshot.png)
 
 ## How to Run
 
