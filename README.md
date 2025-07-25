@@ -10,7 +10,9 @@ Users can mark words as known or unknown, and the app will continue to show only
 - Countdown timer before the answer is revealed
 - Automatically flips to show the English meaning after 5 seconds.
 - Buttons to mark if the word is known or not.
-- Keeps track of known words within a session.
+- Remembers your progress across sessions by saving unknown words to a CSV file. 
+- Shows a "Well done" message when all words have been learned.
+- Disables interaction once learning is complete
 
 ## Screenshot
 

@@ -9,20 +9,17 @@ FONT_WORD = ("Ariel", 60, "bold")
 FLIP_TIME = 5000 # 5 seconds
 
 
-
-
 # ---------------------------- DATA SETUP ------------------------------- #
 try:
-    data = pandas.read_csv("./data/french_words.csv")
-except FileNotFoundError:
-    print("CSV file not found")
-    exit()
+    data = pandas.read_csv("./data/words_to_learn.csv")
+except (pandas.errors.EmptyDataError, FileNotFoundError):
+    original_data = pandas.read_csv("./data/french_words.csv")
+    words_to_learn = original_data.to_dict(orient="records")
+else:
+    words_to_learn = data.to_dict(orient="records")
 
-# Create a list from the data.csv
-to_learn_words = data.to_dict(orient="records")
-known_words_indices = set()
+
 current_card = {}
-card_index = 0
 countdown_time = 5
 flip_timer = None
 countdown_timer = None
@@ -30,7 +27,7 @@ countdown_timer = None
 
 # ---------------------------- FUNCTIONS ------------------------------- #
 def next_card():
-    global card_index, current_card, countdown_time, countdown_timer, flip_timer
+    global current_card, countdown_time, countdown_timer, flip_timer
 
     # Cancel previous timers if any
     if flip_timer is not None:
@@ -38,12 +35,16 @@ def next_card():
     if countdown_timer is not None:
         window.after_cancel(countdown_timer)
 
-    while True:
-        card_index = random.randint(0, len(to_learn_words) - 1)
-        if card_index not in known_words_indices:
-            break
+    if not words_to_learn:
+        canvas.itemconfig(card_title, text="Well done!", fill="black")
+        canvas.itemconfig(card_word, text="All words learned 🎉", fill=BACKGROUND_COLOR)
+        canvas.itemconfig(timer_text, text="")
+        canvas.itemconfig(card_image, image=card_front_img)
+        right_button.config(state="disabled")
+        wrong_button.config(state="disabled")
+        return
 
-    current_card = to_learn_words[card_index]
+    current_card = random.choice(words_to_learn)
 
     canvas.itemconfig(card_image, image=card_front_img)
     canvas.itemconfig(card_title, text="French", fill="black")
@@ -64,8 +65,10 @@ def flip_card():
     canvas.itemconfig(card_word, text=current_card["English"], fill="black")
     canvas.itemconfig(timer_text, text="")
 
-def  known_words():
-    known_words_indices.add(card_index)
+def known_words():
+    words_to_learn.remove(current_card)
+    words_to_learn_dataframe = pandas.DataFrame(words_to_learn)
+    words_to_learn_dataframe.to_csv("./data/words_to_learn.csv", index=False)
     next_card()
 
 def unknown_words():

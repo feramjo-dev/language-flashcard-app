@@ -11,3 +11,6 @@ env/
 # IDE/editor settings
 .vscode/
 .idea/
+
+#files
+./data/words_to_learn.csv
